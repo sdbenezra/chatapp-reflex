@@ -2,6 +2,7 @@
 
 from chatapp_reflex import styles
 from chatapp_reflex.templates import template
+from chatapp_reflex.chatstate import ChatState
 
 import reflex as rx
 
@@ -21,32 +22,27 @@ def qa(question: str, answer: str) -> rx.Component:
 
 
 def chat() -> rx.Component:
-    qa_pairs = [
-        (
-            "What is Reflex?",
-            "A way to build web apps in pure Python!",
-        ),
-        (
-            "What can I make with it?",
-            "A way to build web apps in pure Python!",
-        ),
-        (
-            "Is Sigrid the coolest person?",
-            "Yes!",
-        )
-    ]
     return rx.box(
-        *[
-            qa(question, answer)
-            for question, answer in qa_pairs
-        ]
+        rx.foreach(
+            ChatState.chat_history,
+            lambda messages: qa(messages[0], messages[1]),
+        )
     )
 
 
 def action_bar() -> rx.Component:
     return rx.hstack(
-        rx.input(placeholder="Ask a question"),
-        rx.button("Ask"),
+        rx.input(
+            value=ChatState.question,
+            placeholder="Ask a question",
+            on_change=ChatState.set_question,
+            style=styles.input_style,
+        ),
+        rx.button(
+            "Ask",
+            on_click=ChatState.answer,
+            style=styles.button_style,
+        ),
     )
 
 
